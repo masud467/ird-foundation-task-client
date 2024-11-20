@@ -15,7 +15,7 @@ import {
 const Navbar = () => {
   return (
     <>
-      <header className={"sticky top-0 z-50 h-16 w-full border-border/40"}>
+      <header className="sticky top-0 z-50 h-16 w-full border-border/40">
         <div className="container z-50 flex h-full items-center justify-between">
           <Link
             href={"/"}
@@ -48,7 +48,7 @@ const Navbar = () => {
                   <DropdownMenuSeparator />
                 </DropdownMenuContent>
               </DropdownMenu>
-              <IoSettings  className="text-green-700 text-3xl" />
+              <IoSettings className="text-green-700 text-3xl" />
             </>
           </div>
         </div>
