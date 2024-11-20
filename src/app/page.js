@@ -15,10 +15,10 @@ export default function Home() {
           <h1 className="text-xl font-semibold pb-5">Dua Pages</h1>
           <Categories></Categories>
         </div>
-        <div className="col-span-7">
+        <div className="col-span-6">
           <Main></Main>
         </div>
-        <div className="col-span-1">
+        <div className="col-span-2">
           <Profile></Profile>
         </div>
       </div>
