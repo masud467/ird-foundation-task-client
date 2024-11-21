@@ -14,6 +14,12 @@ const ProfileDropdown = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [showLanguageOptions, setShowLanguageOptions] = useState(false);
+  const [showGeneralSettings, setShowGeneralSettings] = useState(false);
+  const [showFontSettings, setShowFontSettings] = useState(false);
+  const [translationFontSize, setTranslationFontSize] = useState(18);
+  const [arabicFontSize, setArabicFontSize] = useState(26);
+  const [selectedArabicScript, setSelectedArabicScript] = useState("Uthmani");
+  const [selectedArabicFont, setSelectedArabicFont] = useState("Me Quran");
   const dropdownRef = useRef(null);
 
   // Toggle dropdown when clicking the profile icon
@@ -35,15 +41,11 @@ const ProfileDropdown = () => {
     };
   }, []);
 
-  // Open and close the drawer
-  const toggleDrawer = () => {
-    setDrawerOpen(!isDrawerOpen);
-  };
-
-  // Toggle language options inside the drawer
-  const toggleLanguageOptions = () => {
-    setShowLanguageOptions(!showLanguageOptions);
-  };
+  // Drawer toggles
+  const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
+  const toggleLanguageOptions = () => setShowLanguageOptions(!showLanguageOptions);
+  const toggleGeneralSettings = () => setShowGeneralSettings(!showGeneralSettings);
+  const toggleFontSettings = () => setShowFontSettings(!showFontSettings);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -135,11 +137,126 @@ const ProfileDropdown = () => {
                   </div>
                 )}
               </div>
+              {/* general setting */}
               <div className="p-4 border-b text-gray-500">
-                <p className="hover:text-green-600 text-lg font-medium cursor-pointer flex items-center gap-5"><TfiLayersAlt />General Settings</p>
+                <p className="hover:text-green-600 text-lg font-medium cursor-pointer flex items-center gap-5" onClick={toggleGeneralSettings}><TfiLayersAlt />General Settings</p>
+                {showGeneralSettings && (
+                  <div className="mt-3 space-y-3">
+                    <div className="flex items-center">
+                      <input type="checkbox" id="showArabic" className="mr-2" />
+                      <label htmlFor="showArabic" className="text-gray-700">
+                        Show Arabic
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input type="checkbox" id="showTranslation" className="mr-2" />
+                      <label htmlFor="showTranslation" className="text-gray-700">
+                        Show Translation
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="showTransliteration"
+                        className="mr-2"
+                        defaultChecked
+                      />
+                      <label htmlFor="showTransliteration" className="text-gray-700">
+                        Show Transliteration
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="showReference"
+                        className="mr-2"
+                        defaultChecked
+                      />
+                      <label htmlFor="showReference" className="text-gray-700">
+                        Show Reference
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
+              
               <div className="p-4 border-b text-gray-500">
-                <p className="hover:text-green-600 text-lg font-medium cursor-pointer flex items-center gap-5"> <AiOutlineAppstore  />Font Settings</p>
+                <p className="hover:text-green-600 text-lg font-medium cursor-pointer flex items-center gap-5" onClick={toggleFontSettings}> <AiOutlineAppstore />Font Settings</p>
+                {showFontSettings && (
+                <div className="mt-4 space-y-4">
+                  {/* Translation Font Size */}
+                  <div>
+                    <label className="text-gray-700 block mb-2">
+                      Translation Font Siz
+                    </label>
+                    <div className="flex items-center justify-center gap-4">
+                    <input
+                      type="range"
+                      min="10"
+                      max="40"
+                      value={translationFontSize}
+                      onChange={(e) => setTranslationFontSize(e.target.value)}
+                      className="w-full"
+                    />
+                    <div className="text-green-600 font-semibold mt-2 text-center">
+                      {translationFontSize}
+                    </div>
+                    </div>
+                  </div>
+
+                  {/* Select Arabic Script */}
+                  <div>
+                    <label className="text-gray-700 block mb-2">
+                      Select Arabic Script
+                    </label>
+                    <select
+                      value={selectedArabicScript}
+                      onChange={(e) => setSelectedArabicScript(e.target.value)}
+                      className="w-full px-3 py-2 border rounded"
+                    >
+                      <option value="Uthmani">Uthmani</option>
+                      <option value="IndoPak">IndoPak</option>
+                      
+                    </select>
+                  </div>
+
+                  {/* Arabic Font */}
+                  <div>
+                    <label className="text-gray-700 block mb-2">Arabic Font</label>
+                    <select
+                      value={selectedArabicFont}
+                      onChange={(e) => setSelectedArabicFont(e.target.value)}
+                      className="w-full px-3 py-2 border rounded"
+                    >
+                      <option value="KFGQ">KFGQ</option>
+                      <option value="Me Quran">Me Quran</option>
+                      <option value="Al Mushaf">Al Mushaf</option>
+                      <option value="Amiri Quran">Amiri Quran</option>
+                    </select>
+                  </div>
+
+                  {/* Arabic Font Size */}
+                  <div>
+                    <label className="text-gray-700 block mb-2">
+                      Arabic Font Size
+                    </label>
+                    <div className='flex gap-4'>
+                    <input
+                      type="range"
+                      min="10"
+                      max="40"
+                      value={arabicFontSize}
+                      onChange={(e) => setArabicFontSize(e.target.value)}
+                      className="w-full"
+                    />
+                    <div className="text-green-600 font-semibold mt-2">
+                      {arabicFontSize}
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            
               </div>
               <div className="p-4 text-gray-500">
                 <p className="hover:text-green-600 text-lg font-medium cursor-pointer flex items-center gap-5"><AiOutlineAppstore  /> Appearance Settings</p>
