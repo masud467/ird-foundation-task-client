@@ -15,12 +15,12 @@ export default function Home() {
           <h1 className="text-xl font-semibold pb-5">Dua Pages</h1>
           <Categories></Categories>
         </div>
-        <div className="col-span-6">
+        <div className="col-span-8">
           <Main></Main>
         </div>
-        <div className="col-span-2">
+        {/* <div className="col-span-2">
           <Profile></Profile>
-        </div>
+        </div> */}
       </div>
     </div>
   );
