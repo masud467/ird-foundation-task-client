@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaCog, FaDownload, FaShieldAlt, FaHeart } from "react-icons/fa";
 import { MdOutlineCopyright, MdOutlineApps } from "react-icons/md";
 import { AiOutlineAppstore, AiOutlineInfoCircle, AiOutlineWarning } from "react-icons/ai";
-// import Image from "next/image";
-// import profile from "../../public/image/profile.png";
+import Image from "next/image";
+import profile from "../../public/image/profile.png";
 import { BiSolidDonateHeart } from "react-icons/bi";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { IoLanguage } from "react-icons/io5";
@@ -53,13 +53,13 @@ const ProfileDropdown = () => {
         className="flex items-center space-x-1 cursor-pointer"
         onClick={toggleDropdown}
       >
-        {/* <Image
+        <Image
           src={profile} 
           alt="Profile Icon"
           className=" rounded-full"
           width={50}
           height={50}
-        /> */}
+        />
         <div className="text-gray-600 ">
           <IoMdArrowDropdown />
         </div>
