@@ -16,7 +16,7 @@ const Sidebar = () => {
       <button className="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-full shadow-md">
         <FaHands className="text-2xl" />
       </button>
-      <div className="flex flex-col items-center gap-4 overflow-y-auto">
+      <div className="flex flex-col items-center gap-4 ">
         {/* Top Button */}
 
         {/* Sidebar Icons */}
