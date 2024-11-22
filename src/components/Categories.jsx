@@ -16,9 +16,9 @@ const Categories = () => {
     const fetchData = async () => {
       try {
         const [categoriesResponse, subcategoriesResponse, duasResponse] = await Promise.all([
-          fetch(" https://ird-foundation-task-server.vercel.app/categories"),
-          fetch(" https://ird-foundation-task-server.vercel.app/subcategories"),
-          fetch(" https://ird-foundation-task-server.vercel.app/duas"),
+          fetch("https://ird-foundation-task-server.vercel.app/categories"),
+          fetch("https://ird-foundation-task-server.vercel.app/subcategories"),
+          fetch("https://ird-foundation-task-server.vercel.app/duas"),
         ]);
 
         const categoriesData = await categoriesResponse.json();
