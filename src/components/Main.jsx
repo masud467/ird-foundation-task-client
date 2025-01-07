@@ -4,14 +4,15 @@ import { FaSearch } from "react-icons/fa";
 import { BiCopy, BiBookmark, BiShareAlt } from "react-icons/bi";
 import { IoBulbOutline } from "react-icons/io5";
 import { FiInfo } from "react-icons/fi";
+import { HiMenu } from "react-icons/hi";
 import Profile from "./Profile";
 import Categories from "./Categories";
 import Sidebar from "./Sidebar";
-import Image from "next/image";
 
 const Main = () => {
   const [duas, setDuas] = useState([]);
   const [filteredDuas, setFilteredDuas] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [categories, setCategories] = useState([]);
@@ -49,6 +50,7 @@ const Main = () => {
         const category = categories.find((cat) => cat.cat_id === selection.id);
         setSelectedCategory(category?.cat_name_en || "");
         setSelectedSubcategory("");
+        setIsDrawerOpen(false);
         break;
       case "subcategory":
         setFilteredDuas(duas.filter((dua) => dua.subcat_id === selection.id));
@@ -56,9 +58,11 @@ const Main = () => {
           (sub) => sub.subcat_id === selection.id
         );
         setSelectedSubcategory(subcategory?.subcat_name_en || "");
+        setIsDrawerOpen(false);
         break;
       case "dua":
         setFilteredDuas(duas.filter((dua) => dua.dua_id === selection.id));
+        setIsDrawerOpen(false);
         break;
       default:
         setFilteredDuas(duas);
@@ -67,9 +71,29 @@ const Main = () => {
 
   return (
     <div className="bg-[#EBEEF2] h-screen py-10 overflow-hidden">
-      <div className="grid grid-cols-12 gap-4 mx-8 ">
+      {/* Mobile/Tablet Drawer Overlay */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 lg:hidden ${
+          isDrawerOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        onClick={() => setIsDrawerOpen(false)}
+      />
+
+      {/* Mobile/Tablet Drawer */}
+      <div
+        className={`fixed inset-y-0 left-0 w-80 bg-white z-50 transform transition-transform duration-300 lg:hidden ${
+          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="h-full overflow-y-auto">
+          <Categories onSelectContent={handleContentSelect} />
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:grid grid-cols-12 gap-4 mx-8">
         <div className="col-span-1">
-          <Sidebar></Sidebar>
+          <Sidebar />
         </div>
         <div className="col-span-3">
           <h1 className="text-xl font-semibold pb-5">Dua Pages</h1>
@@ -104,17 +128,9 @@ const Main = () => {
                   key={`${dua.cat_id}-${dua.subcat_id}-${dua.dua_id}-${index}`}
                   className="bg-white rounded-lg p-4 space-y-2 border"
                 >
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/image/duacard.svg"
-                      width={30}
-                      height={30}
-                      alt="image"
-                    ></Image>
-                    <h2 className="text-green-600 font-semibold text-lg">
-                      {dua.dua_name_en}
-                    </h2>
-                  </div>
+                  <h2 className="text-green-600 font-semibold text-lg">
+                    {dua.dua_name_en}
+                  </h2>
                   <p className="text-gray-700 text-sm">{dua.top_en}</p>
                   {dua.refference_en && (
                     <p className="text-lg font-medium">
@@ -132,6 +148,64 @@ const Main = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile/Tablet Layout */}
+      <div className="lg:hidden px-4">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            className="p-2 bg-white rounded-lg"
+            onClick={() => setIsDrawerOpen(true)}
+          >
+            <HiMenu className="text-2xl" />
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="flex w-full items-center bg-white rounded-lg py-1 px-4">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full px-2 py-1 border-none focus:outline-none"
+              />
+              <FaSearch className="text-gray-400" />
+            </div>
+            <Profile />
+          </div>
+        </div>
+
+        <div className="overflow-y-auto h-[calc(100vh-150px)]">
+          {selectedCategory && (
+            <div className="bg-green-100 text-green-700 font-semibold text-base rounded-md py-2 px-4 mb-4">
+              Section: {selectedCategory}
+              {selectedSubcategory && ` > ${selectedSubcategory}`}
+            </div>
+          )}
+          <div className="space-y-4">
+            {filteredDuas.map((dua, index) => (
+              <div
+                key={`${dua.cat_id}-${dua.subcat_id}-${dua.dua_id}-${index}`}
+                className="bg-white rounded-lg p-3 space-y-2 border"
+              >
+                <h2 className="text-green-600 font-semibold text-base">
+                  {dua.dua_name_en}
+                </h2>
+                <p className="text-gray-700 text-sm">{dua.top_en}</p>
+                {dua.refference_en && (
+                  <p className="text-base font-medium">
+                    <span className="text-green-500">Reference:</span> <br />
+                    {dua.refference_en}
+                  </p>
+                )}
+                <div className="flex items-center justify-end space-x-4 text-gray-500">
+                  <BiCopy className="cursor-pointer hover:text-green-600 text-xl" />
+                  <BiBookmark className="cursor-pointer hover:text-green-600 text-xl" />
+                  <IoBulbOutline className="cursor-pointer hover:text-green-600 text-xl" />
+                  <FiInfo className="cursor-pointer hover:text-green-600 text-xl" />
+                  <BiShareAlt className="cursor-pointer hover:text-green-600 text-xl" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
