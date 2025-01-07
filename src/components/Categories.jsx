@@ -1,25 +1,28 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa"; // For the search icon
-import { IoIosArrowForward } from "react-icons/io"; // For the forward arrow icon
-import { FiLayers } from "react-icons/fi"; // Example icon for categories
+import { useRouter } from "next/navigation";
+import { FaSearch } from "react-icons/fa";
+import { IoIosArrowForward } from "react-icons/io";
+import { FiLayers } from "react-icons/fi";
 
-const Categories = () => {
+const Categories = ({ onSelectContent }) => {
+  const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [subcategories, setSubcategories] = useState([]);
-  const [duas, setDuas] = useState([]); // New state for Duas
-  const [expandedCategoryId, setExpandedCategoryId] = useState(null); // Track the expanded category
-  const [expandedSubcategoryId, setExpandedSubcategoryId] = useState(null); // Track the expanded subcategory
+  const [duas, setDuas] = useState([]);
+  const [expandedCategoryId, setExpandedCategoryId] = useState(null);
+  const [expandedSubcategoryId, setExpandedSubcategoryId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [categoriesResponse, subcategoriesResponse, duasResponse] = await Promise.all([
-          fetch("https://ird-foundation-task-server.vercel.app/categories"),
-          fetch("https://ird-foundation-task-server.vercel.app/subcategories"),
-          fetch("https://ird-foundation-task-server.vercel.app/duas"),
-        ]);
+        const [categoriesResponse, subcategoriesResponse, duasResponse] =
+          await Promise.all([
+            fetch("http://localhost:3003/categories"),
+            fetch("http://localhost:3003/subcategories"),
+            fetch("http://localhost:3003/duas"),
+          ]);
 
         const categoriesData = await categoriesResponse.json();
         const subcategoriesData = await subcategoriesResponse.json();
@@ -35,9 +38,66 @@ const Categories = () => {
     fetchData();
   }, []);
 
+  const handleCategoryClick = (categoryId, categoryName) => {
+    setExpandedCategoryId((prevId) =>
+      prevId === categoryId ? null : categoryId
+    );
+    router.push(
+      `/duas/${categoryName
+        .toLowerCase()
+        .replace(/\s+/g, "-")}?cat=${categoryId}`,
+      { shallow: true }
+    );
+    onSelectContent({ type: "category", id: categoryId });
+  };
+
+  const handleSubcategoryClick = (
+    categoryId,
+    categoryName,
+    subcatId,
+    event
+  ) => {
+    event.stopPropagation();
+    setExpandedSubcategoryId((prevId) =>
+      prevId === subcatId ? null : subcatId
+    );
+    router.push(
+      `/duas/${categoryName
+        .toLowerCase()
+        .replace(/\s+/g, "-")}?cat=${categoryId}&subcat=${subcatId}`,
+      { shallow: true }
+    );
+    onSelectContent({ type: "subcategory", id: subcatId });
+  };
+
+  const handleDuaClick = (categoryId, categoryName, subcatId, duaId, event) => {
+    event.stopPropagation();
+    router.push(
+      `/duas/${categoryName
+        .toLowerCase()
+        .replace(
+          /\s+/g,
+          "-"
+        )}?cat=${categoryId}&subcat=${subcatId}&dua=${duaId}`,
+      { shallow: true }
+    );
+    onSelectContent({ type: "dua", id: duaId });
+  };
+
   const filterCategories = categories.filter((category) =>
     category.cat_name_en.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const getUniqueCategories = (categories) => {
+    const seen = new Set();
+    return categories.filter((category) => {
+      const duplicate = seen.has(category.cat_id);
+      seen.add(category.cat_id);
+      return !duplicate;
+    });
+  };
+
+  const uniqueFilteredCategories = getUniqueCategories(filterCategories);
 
   const getSubcategoriesForCategory = (categoryId) => {
     return subcategories.filter((sub) => sub.cat_id === categoryId);
@@ -47,24 +107,12 @@ const Categories = () => {
     return duas.filter((dua) => dua.subcat_id === subcategoryId);
   };
 
-  const toggleCategory = (categoryId) => {
-    setExpandedCategoryId((prevId) => (prevId === categoryId ? null : categoryId));
-  };
-
-  const toggleSubcategory = (subcategoryId) => {
-    setExpandedSubcategoryId((prevId) => (prevId === subcategoryId ? null : subcategoryId));
-  };
-
-  
-
   return (
     <div className="bg-white h-[840px] rounded-lg shadow-lg p-4">
-      {/* Header */}
       <div className="bg-green-500 text-white text-center rounded-md py-2 font-bold">
         Categories
       </div>
 
-      {/* Search Box */}
       <div className="relative my-4">
         <input
           type="text"
@@ -77,14 +125,16 @@ const Categories = () => {
       </div>
 
       <div className="overflow-y-auto h-[60vh]">
-        {filterCategories.map((category) => (
+        {uniqueFilteredCategories.map((category, catIndex) => (
           <div
-            key={category.id}
+            key={`category-${category.cat_id}-${catIndex}`}
             className="border-b pb-4 mb-4 last:border-b-0 last:pb-0"
           >
             <div
               className="flex items-center justify-between mb-2 cursor-pointer"
-              onClick={() => toggleCategory(category.id)} // Toggle subcategories on click
+              onClick={() =>
+                handleCategoryClick(category.cat_id, category.cat_name_en)
+              }
             >
               <div className="flex items-center gap-2">
                 <FiLayers className="text-2xl text-green-500" />
@@ -102,38 +152,64 @@ const Categories = () => {
               </span>
             </div>
 
-            {/* Show subcategories only if the category is expanded */}
-            {expandedCategoryId === category.id && (
+            {expandedCategoryId === category.cat_id && (
               <ul className="pl-8 list-disc text-sm text-gray-600">
-                {getSubcategoriesForCategory(category.id).map((subcat) => (
-                  <li key={subcat.subcat_id} className="my-2">
-                    <div
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={() => toggleSubcategory(subcat.subcat_id)} // Toggle Duas on click
+                {getSubcategoriesForCategory(category.cat_id).map(
+                  (subcat, subcatIndex) => (
+                    <li
+                      key={`subcat-${category.cat_id}-${subcat.subcat_id}-${subcatIndex}`}
+                      className="my-2"
                     >
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                        {subcat.subcat_name_en}
+                      <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={(e) =>
+                          handleSubcategoryClick(
+                            category.cat_id,
+                            category.cat_name_en,
+                            subcat.subcat_id,
+                            e
+                          )
+                        }
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                          {subcat.subcat_name_en}
+                        </div>
+                        <IoIosArrowForward
+                          className={`transform transition-transform ${
+                            expandedSubcategoryId === subcat.subcat_id
+                              ? "rotate-90"
+                              : ""
+                          }`}
+                        />
                       </div>
-                      <IoIosArrowForward
-                        className={`transform transition-transform ${
-                          expandedSubcategoryId === subcat.subcat_id ? "rotate-90" : ""
-                        }`}
-                      />
-                    </div>
 
-                    {/* Show Duas only if the subcategory is expanded */}
-                    {expandedSubcategoryId === subcat.subcat_id && (
-                      <ul className="pl-8 list-decimal text-gray-600 mt-2">
-                        {getDuasForSubcategory(subcat.subcat_id).map((dua) => (
-                          <li key={dua.id} className="my-1">
-                            {dua.dua_name_en}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
+                      {expandedSubcategoryId === subcat.subcat_id && (
+                        <ul className="pl-8 list-decimal text-gray-600 mt-2">
+                          {getDuasForSubcategory(subcat.subcat_id).map(
+                            (dua, duaIndex) => (
+                              <li
+                                key={`dua-${subcat.subcat_id}-${dua.dua_id}-${duaIndex}`}
+                                className="my-1 cursor-pointer hover:text-green-600"
+                                onClick={(e) =>
+                                  handleDuaClick(
+                                    category.cat_id,
+                                    category.cat_name_en,
+                                    subcat.subcat_id,
+                                    dua.dua_id,
+                                    e
+                                  )
+                                }
+                              >
+                                {dua.dua_name_en}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      )}
+                    </li>
+                  )
+                )}
               </ul>
             )}
           </div>
