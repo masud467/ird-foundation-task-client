@@ -23,9 +23,9 @@ export default function Home() {
           <h1 className="text-xl font-semibold pb-5">Dua Pages</h1>
           <Categories></Categories>
         </div> */}
-      <div>
-        <Main></Main>
-      </div>
+
+      <Main></Main>
+
       {/* <div className="col-span-2">
           <Profile></Profile>
         </div> */}
