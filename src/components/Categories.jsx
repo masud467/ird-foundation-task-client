@@ -155,12 +155,12 @@ const Categories = ({ onSelectContent }) => {
             </div>
 
             {expandedCategoryId === category.cat_id && (
-              <ul className="pl-8 list-disc text-sm text-gray-600">
+              <ul className="pl-8 text-sm text-gray-600">
                 {getSubcategoriesForCategory(category.cat_id).map(
                   (subcat, subcatIndex) => (
                     <li
                       key={`subcat-${category.cat_id}-${subcat.subcat_id}-${subcatIndex}`}
-                      className="my-2"
+                      className="my-2 relative"
                     >
                       <div
                         className="flex items-center justify-between cursor-pointer"
@@ -173,10 +173,19 @@ const Categories = ({ onSelectContent }) => {
                           )
                         }
                       >
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                          {subcat.subcat_name_en}
+                        <div className="relative">
+                          <div className="flex items-center gap-2">
+                            {/* Dotted Line */}
+                            <div className="absolute top-[-8px] left-[2px] h-[calc(100%+24px)] border-l-2 border-dotted border-green-500"></div>
+
+                            {/* Green Circle */}
+                            <div className="w-2 h-2 bg-green-500 rounded-full relative z-10"></div>
+
+                            {/* Subcategory Name */}
+                            <span>{subcat.subcat_name_en}</span>
+                          </div>
                         </div>
+
                         <IoIosArrowForward
                           className={`transform transition-transform ${
                             expandedSubcategoryId === subcat.subcat_id
@@ -187,7 +196,8 @@ const Categories = ({ onSelectContent }) => {
                       </div>
 
                       {expandedSubcategoryId === subcat.subcat_id && (
-                        <ul className="pl-8 list-decimal text-gray-600 mt-2">
+                        <ul className="pl-8 list-decimal text-gray-600 mt-2 relative">
+                          <div className="absolute top-0 left-[2px] h-full border-l-2 border-dotted border-green-500"></div>
                           {getDuasForSubcategory(subcat.subcat_id).map(
                             (dua, duaIndex) => (
                               <li
