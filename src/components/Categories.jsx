@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
 import { IoIosArrowForward } from "react-icons/io";
@@ -14,7 +14,31 @@ const Categories = ({ onSelectContent }) => {
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
   const [expandedSubcategoryId, setExpandedSubcategoryId] = useState(null);
 
+
+
+  const scrollContainerRef = useRef(null);
+const categoryRefs = useRef({});
+
   useEffect(() => {
+    // Load saved states from localStorage
+    const savedState = localStorage.getItem("categoryState");
+    if (savedState) {
+      const { categoryId, subcategoryId } = JSON.parse(savedState);
+
+
+      setTimeout(() => {
+        if (categoryRefs.current[categoryId]) {
+          categoryRefs.current[categoryId].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
+        }
+      }, 100);
+
+      setExpandedCategoryId(categoryId);
+      setExpandedSubcategoryId(subcategoryId);
+    }
+
     const fetchData = async () => {
       try {
         const [categoriesResponse, subcategoriesResponse, duasResponse] =
@@ -26,9 +50,13 @@ const Categories = ({ onSelectContent }) => {
             fetch("https://ird-foundation-task-server.vercel.app/duas"),
           ]);
 
-        const categoriesData = await categoriesResponse.json();
-        const subcategoriesData = await subcategoriesResponse.json();
-        const duasData = await duasResponse.json();
+        const [categoriesData, subcategoriesData, duasData] = await Promise.all(
+          [
+            categoriesResponse.json(),
+            subcategoriesResponse.json(),
+            duasResponse.json(),
+          ]
+        );
 
         setCategories(categoriesData);
         setSubcategories(subcategoriesData);
@@ -38,12 +66,30 @@ const Categories = ({ onSelectContent }) => {
       }
     };
     fetchData();
-  }, []);
+  }, [categories]);
 
   const handleCategoryClick = (categoryId, categoryName) => {
-    setExpandedCategoryId((prevId) =>
-      prevId === categoryId ? null : categoryId
+    setExpandedCategoryId(categoryId);
+    setExpandedSubcategoryId(null);
+
+
+    // Scroll to clicked category smoothly
+  if (categoryRefs.current[categoryId]) {
+    categoryRefs.current[categoryId].scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest'
+    });
+  }
+
+    // Save state to localStorage
+    localStorage.setItem(
+      "categoryState",
+      JSON.stringify({
+        categoryId,
+        subcategoryId: null,
+      })
     );
+
     router.push(
       `/duas/${categoryName
         .toLowerCase()
@@ -60,9 +106,17 @@ const Categories = ({ onSelectContent }) => {
     event
   ) => {
     event.stopPropagation();
-    setExpandedSubcategoryId((prevId) =>
-      prevId === subcatId ? null : subcatId
+    setExpandedSubcategoryId(subcatId);
+
+    // Save state to localStorage
+    localStorage.setItem(
+      "categoryState",
+      JSON.stringify({
+        categoryId,
+        subcategoryId: subcatId,
+      })
     );
+
     router.push(
       `/duas/${categoryName
         .toLowerCase()
@@ -85,6 +139,8 @@ const Categories = ({ onSelectContent }) => {
     );
     onSelectContent({ type: "dua", id: duaId });
   };
+
+  // ----------------------------------------------------------------------------------------------------
 
   const filterCategories = categories.filter((category) =>
     category.cat_name_en.toLowerCase().includes(searchQuery.toLowerCase())
@@ -126,10 +182,11 @@ const Categories = ({ onSelectContent }) => {
         <FaSearch className="absolute top-3 right-3 text-gray-400" />
       </div>
 
-      <div className="overflow-y-auto h-[60vh]">
+      <div ref={scrollContainerRef} className="overflow-y-auto h-[60vh]">
         {uniqueFilteredCategories.map((category, catIndex) => (
           <div
             key={`category-${category.cat_id}-${catIndex}`}
+            ref={el => categoryRefs.current[category.cat_id] = el}
             className="border-b pb-4 mb-4 last:border-b-0 last:pb-0"
           >
             <div
