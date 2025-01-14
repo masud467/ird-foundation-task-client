@@ -45,66 +45,74 @@ const Main = () => {
             subcategoriesResponse.json(),
           ]
         );
-
-        // Preprocess and organize data
-        const categoryMapping = {};
-        categoriesData.forEach((category) => {
-          categoryMapping[category.cat_id] = {
-            duas: duasData.filter((dua) => dua.cat_id === category.cat_id),
-            subcategories: subcategoriesData.filter(
-              (sub) => sub.cat_id === category.cat_id
-            ),
-          };
-        });
-
-        setDuas(duasData);
+// ===============================================================================
+        // Get saved state
+      const savedState = localStorage.getItem('categoryState');
+      if (savedState) {
+        const { categoryId, subcategoryId } = JSON.parse(savedState);
+        
+        // Filter duas based on saved state
+        let filteredDuasData = duasData;
+        if (subcategoryId) {
+          filteredDuasData = duasData.filter(dua => dua.subcat_id === subcategoryId);
+          const subcategory = subcategoriesData.find(sub => sub.subcat_id === subcategoryId);
+          setSelectedSubcategory(subcategory?.subcat_name_en || "");
+        } else if (categoryId) {
+          filteredDuasData = duasData.filter(dua => dua.cat_id === categoryId);
+          const category = categoriesData.find(cat => cat.cat_id === categoryId);
+          setSelectedCategory(category?.cat_name_en || "");
+        }
+        setFilteredDuas(filteredDuasData);
+      } else {
         setFilteredDuas(duasData);
-        setCategories(categoriesData);
-        setSubcategories(subcategoriesData);
-        setPreloadedData({
-          categoryData: categoryMapping,
-          subcategoryData: {},
-        });
-        setLoadingStates({ initial: false, categoryChange: false });
-      } catch (error) {
+      }
+
+      setDuas(duasData);
+      setCategories(categoriesData);
+      setSubcategories(subcategoriesData);
+      // ===============================================================================
+    }catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
-
-  const handleContentSelect = (selection) => {
-    switch (selection.type) {
-      case "category": {
-        const categoryDuas =
-          preloadedData.categoryData[selection.id]?.duas || [];
-        const category = categories.find((cat) => cat.cat_id === selection.id);
-        setFilteredDuas(categoryDuas);
-        setSelectedCategory(category?.cat_name_en || "");
-        setSelectedSubcategory("");
-        break;
-      }
-      case "subcategory": {
-        const subcategoryDuas = duas.filter(
-          (dua) => dua.subcat_id === selection.id
-        );
-        const subcategory = subcategories.find(
-          (sub) => sub.subcat_id === selection.id
-        );
-        setFilteredDuas(subcategoryDuas);
-        setSelectedSubcategory(subcategory?.subcat_name_en || "");
-        break;
-      }
-      case "dua": {
-        const selectedDua = duas.filter((dua) => dua.dua_id === selection.id);
-        setFilteredDuas(selectedDua);
-        break;
-      }
-      default:
-        setFilteredDuas(duas);
+// ====================================================================================
+const handleContentSelect = (selection) => {
+  switch (selection.type) {
+    case "category": {
+      const categoryDuas = duas.filter(dua => dua.cat_id === selection.id);
+      const category = categories.find((cat) => cat.cat_id === selection.id);
+      setFilteredDuas(categoryDuas);
+      setSelectedCategory(category?.cat_name_en || "");
+      setSelectedSubcategory("");
+      break;
     }
-    setIsDrawerOpen(false);
-  };
+    case "subcategory": {
+      const subcategoryDuas = duas.filter(dua => dua.subcat_id === selection.id);
+      const subcategory = subcategories.find(sub => sub.subcat_id === selection.id);
+      setFilteredDuas(subcategoryDuas);
+      const category = categories.find(cat => 
+        cat.cat_id === subcategory?.cat_id
+      );
+      setSelectedCategory(category?.cat_name_en || "");
+      setSelectedSubcategory(subcategory?.subcat_name_en || "");
+      break;
+    }
+    case "dua": {
+      const selectedDua = duas.filter((dua) => dua.dua_id === selection.id);
+      setFilteredDuas(selectedDua);
+      break;
+    }
+    default:
+      setFilteredDuas(duas);
+  }
+  setIsDrawerOpen(false);
+};
+
+
+
+  // ====================================================================================
 
   const renderDuaCard = (dua, index) => (
     <div
