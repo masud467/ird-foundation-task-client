@@ -7,24 +7,16 @@ import { TfiLayersAlt } from "react-icons/tfi";
 const Settings = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(null);
-  // const [showLanguageOptions, setShowLanguageOptions] = useState(false);
-  // const [showGeneralSettings, setShowGeneralSettings] = useState(false);
-  // const [showFontSettings, setShowFontSettings] = useState(false);
+
   const [translationFontSize, setTranslationFontSize] = useState(18);
   const [arabicFontSize, setArabicFontSize] = useState(26);
   const [selectedArabicScript, setSelectedArabicScript] = useState("Uthmani");
   const [selectedArabicFont, setSelectedArabicFont] = useState("Me Quran");
-  // const [showAppearanceSettings, setShowAppearanceSettings] = useState(false);
+
   const [isNightMode, setIsNightMode] = useState(false);
   // Toggle Drawer
   const toggleDrawer = () => setDrawerOpen(!isDrawerOpen);
-  // const toggleLanguageOptions = () =>
-  //   setShowLanguageOptions(!showLanguageOptions);
-  // const toggleGeneralSettings = () =>
-  //   setShowGeneralSettings(!showGeneralSettings);
-  // const toggleFontSettings = () => setShowFontSettings(!showFontSettings);
-  // const toggleAppearanceSettings = () =>
-  //   setShowAppearanceSettings(!showAppearanceSettings);
+
   const handleSectionToggle = (section) => {
     setActiveSection(activeSection === section ? null : section);
   };
